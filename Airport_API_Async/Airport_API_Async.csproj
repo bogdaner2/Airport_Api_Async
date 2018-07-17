@@ -16,4 +16,9 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Airport_REST_API.DataAccess\Airport_REST_API.DataAccess.csproj" />
+    <ProjectReference Include="..\Airport_REST_API.Services\Airport_REST_API.Services.csproj" />
+  </ItemGroup>
+
 </Project>
