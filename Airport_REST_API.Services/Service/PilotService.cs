@@ -21,36 +21,36 @@ namespace Airport_REST_API.Services.Service
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<PilotDTO>> GetCollection()
+        public async Task<IEnumerable<PilotDTO>> GetCollectionAsync()
         {
-            return _mapper.Map<List<PilotDTO>>(await db.Pilots.GetAll());
+            return _mapper.Map<List<PilotDTO>>(await db.Pilots.GetAllAsync());
         }
 
-        public PilotDTO GetObject(int id)
+        public async Task<PilotDTO> GetObjectAsync(int id)
         {
-            return _mapper.Map<PilotDTO>(db.Pilots.Get(id));
+            return _mapper.Map<PilotDTO>(await db.Pilots.GetAsync(id));
         }
 
-        public bool RemoveObject(int id)
+        public async Task<bool> DeleteObjectAsync(int id)
         {
-            var pilot = db.Pilots.Get(id);
+            var pilot = db.Pilots.GetAsync(id);
             if (pilot != null)
             {
-                db.Pilots.Remove(pilot);
-                db.Save();
+                await db.Pilots.DeleteAsync(id);
+                await db.SaveAsync();
                 return true;
             }
             return false;
         }
 
-        public bool Add(PilotDTO obj)
+        public async Task<bool> CreateObjectAsync(PilotDTO obj)
         {
             if (obj != null)
             {
-                db.Pilots.Add(_mapper.Map<Pilot>(obj));
+                await db.Pilots.CreateAsync(_mapper.Map<Pilot>(obj));
                 try
                 {
-                    db.Save();
+                    await db.SaveAsync();
                 }
                 catch (Exception)
                 {
@@ -61,10 +61,10 @@ namespace Airport_REST_API.Services.Service
             return false;
         }
 
-        public bool Update(int id, PilotDTO obj)
+        public async Task<bool> UpdateObjectAsync(int id, PilotDTO obj)
         {
-            var result = db.Pilots.UpdateObject(id, _mapper.Map<Pilot>(obj));
-            db.Save();
+            var result = db.Pilots.Update(id, _mapper.Map<Pilot>(obj));
+            await db.SaveAsync();
             return result;
         }
     }

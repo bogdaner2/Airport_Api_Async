@@ -22,49 +22,49 @@ namespace Airport_REST_API.DataAccess
         {
             if (!_context.Aircrafts.Any())
             {
-                Aircrafts.ForEach(i => _context.Aircrafts.Add(i));
+                Aircrafts.ForEach(i => _context.Aircrafts.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
 
             if (!_context.AircraftTypes.Any())
             {
-                AircraftTypes.ForEach(i => _context.AircraftTypes.Add(i));
+                AircraftTypes.ForEach(i => _context.AircraftTypes.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
 
             if (!_context.Pilots.Any())
             {
-                Pilots.ForEach(i => _context.Pilots.Add(i));
+                Pilots.ForEach(i => _context.Pilots.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
 
             if (!_context.Crews.Any())
             {
-                Crews.ForEach(i => _context.Crews.Add(i));
+                Crews.ForEach(i => _context.Crews.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
 
             if (!_context.Stewardesses.Any())
             {
-                Stewardesses.ForEach(i => _context.Stewardesses.Add(i));
+                Stewardesses.ForEach(i => _context.Stewardesses.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
 
             if (!_context.Tickets.Any())
             {
-                Tickets.ForEach(i => _context.Tickets.Add(i));
+                Tickets.ForEach(i => _context.Tickets.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
 
             if (!_context.Flights.Any())
             {
-                Flights.ForEach(i => _context.Flights.Add(i));
+                Flights.ForEach(i => _context.Flights.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
 
             if (!_context.Departures.Any())
             {
-                Departureses.ForEach(i => _context.Departures.Add(i));
+                Departureses.ForEach(i => _context.Departures.AddAsync(i));
                 await _context.SaveChangesAsync();
             }
         }
