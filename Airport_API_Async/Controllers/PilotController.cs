@@ -1,4 +1,5 @@
-﻿using Airport_REST_API.Services.Interfaces;
+﻿using System.Threading.Tasks;
+using Airport_REST_API.Services.Interfaces;
 using Airport_REST_API.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,9 +15,10 @@ namespace Airport_API_Async.Controllers
         }
         // GET api/Pilot
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_service.GetCollection());
+            var collection = await _service.GetCollection();
+            return Ok(collection);
         }
 
         // GET api/Pilot/:id

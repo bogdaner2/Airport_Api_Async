@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Airport_REST_API.Services.Interfaces { 
     public interface IService<T>
     {
-        IEnumerable<T> GetCollection();
-        T GetObject(int id);
-        bool RemoveObject(int id);
-        bool Add(T obj);
-        bool Update(int id, T obj);
+        Task<IEnumerable<T>> GetCollection();
+        Task<T> GetObject(int id);
+        Task<bool> RemoveObject(int id);
+        Task<bool> Add(T obj);
+        Task<bool> Update(int id, T obj);
     }
 }

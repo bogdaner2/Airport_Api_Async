@@ -52,7 +52,7 @@ namespace Airport_REST_API.Tests
             RequstPost(new TicketDTO { Number = "TestRemove",Price = 999},out HttpWebResponse responce);
             var id = JsonConvert.DeserializeObject<List<TicketDTO>>(RequestGet()).Last().Id;
             //Act
-            HttpWebRequest httpRequest = HttpWebRequest.CreateHttp("http://localhost:62444/api/ticket" + id);
+            HttpWebRequest httpRequest = HttpWebRequest.CreateHttp("http://localhost:62444/api/ticket/" + id);
             httpRequest.Method = "DELETE";
             httpRequest.ContentType = "application/json";
             //Act

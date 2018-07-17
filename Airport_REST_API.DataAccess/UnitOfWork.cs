@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.DataAccess.Repositories;
 
@@ -96,7 +97,7 @@ namespace Airport_REST_API.DataAccess
             }
         }
 
-        public void Save() => db.SaveChanges();
+        public async Task SaveAsync() => await db.SaveChangesAsync();
     }
 
 }

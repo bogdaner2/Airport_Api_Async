@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.Services.Interfaces;
@@ -20,9 +21,9 @@ namespace Airport_REST_API.Services.Service
             _mapper = mapper;
         }
 
-        public IEnumerable<PilotDTO> GetCollection()
+        public async Task<IEnumerable<PilotDTO>> GetCollection()
         {
-            return _mapper.Map<List<PilotDTO>>(db.Pilots.GetAll());
+            return _mapper.Map<List<PilotDTO>>(await db.Pilots.GetAll());
         }
 
         public PilotDTO GetObject(int id)

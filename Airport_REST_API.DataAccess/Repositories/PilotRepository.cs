@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Airport_REST_API.DataAccess.Repositories
 {
@@ -12,34 +14,37 @@ namespace Airport_REST_API.DataAccess.Repositories
         {
             db = context;
         }
-        public IEnumerable<Pilot> GetAll()
+        public async Task<IEnumerable<Pilot>> GetAllAsync()
         {
-            return db.Pilots;
+            return await db.Pilots.ToListAsync();
         }
 
-        public Pilot Get(int id)
+        public async Task<Pilot> GetAsync(int id)
         {
-            return db.Pilots.FirstOrDefault(item => item.Id == id);
+            return await db.Pilots.FirstOrDefaultAsync(item => item.Id == id);
         }
 
-        public void Add(Pilot entity)
+        public async Task CreateAsync(Pilot entity)
         {
-            db.Pilots.Add(entity);
+            await db.Pilots.AddAsync(entity);
         }
 
-        public void Remove(Pilot entity)
+        public async Task DeleteAsync(int id)
         {
-            db.Pilots.Remove(entity);
+            var pilot = await db.Pilots.FindAsync(id).ConfigureAwait(false);
+            if (pilot != null)
+            {
+                db.Pilots.Remove(pilot);
+            }
         }
 
-        public bool UpdateObject(int id, Pilot obj)
+        public bool Update(int id, Pilot obj)
         {
             var flag = db.Pilots.Count(item => item.Id == id) == 0;
             if (flag)
                 return false;
             obj.Id = id;
-            db.Pilots.Update(obj);
-            db.SaveChanges();
+            db.Entry(obj).State = EntityState.Modified;
             return true;
         }
     }

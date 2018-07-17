@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Airport_REST_API.DataAccess.Repositories
 {
@@ -12,27 +14,31 @@ namespace Airport_REST_API.DataAccess.Repositories
         {
             db = context;
         }
-        public IEnumerable<AircraftType> GetAll()
+        public async Task<IEnumerable<AircraftType>> GetAllAsync()
         {
-            return db.AircraftTypes;
+            return await db.AircraftTypes.ToListAsync();
         }
 
-        public AircraftType Get(int id)
+        public async Task<AircraftType> GetAsync(int id)
         {
-            return db.AircraftTypes.FirstOrDefault(i => i.Id == id);
+            return await db.AircraftTypes.FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        public void Add(AircraftType entity)
+        public async Task CreateAsync(AircraftType entity)
         {
-           db.AircraftTypes.Add(entity);
+           await db.AircraftTypes.AddAsync(entity);
         }
 
-        public void Remove(AircraftType entity)
+        public async Task DeleteAsync(int id)
         {
-            db.AircraftTypes.Remove(entity);
+            var type = await db.AircraftTypes.FindAsync(id).ConfigureAwait(false);
+            if (type != null)
+            {
+                db.AircraftTypes.Remove(type);
+            }
         }
 
-        public bool UpdateObject(int id, AircraftType obj)
+        public bool Update(int id, AircraftType obj)
         {
             var flag = db.AircraftTypes.Count(item => item.Id == id) == 0;
             if (flag)

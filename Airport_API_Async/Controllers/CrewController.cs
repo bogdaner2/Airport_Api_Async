@@ -57,5 +57,11 @@ namespace Airport_API_Async.Controllers
              var result = _service.RemoveObject(id);
              return result == true ? StatusCode(200) : StatusCode(500);
         }
+
+        [HttpGet("crewload")]
+        public IActionResult LoadCrew()
+        {
+            return null;
+        }
     }
 }

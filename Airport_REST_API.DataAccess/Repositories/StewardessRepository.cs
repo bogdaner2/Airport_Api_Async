@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Airport_REST_API.DataAccess.Repositories
 {
@@ -13,27 +15,31 @@ namespace Airport_REST_API.DataAccess.Repositories
         {
             db = context;
         }
-        public IEnumerable<Stewardess> GetAll()
+        public async Task<IEnumerable<Stewardess>> GetAllAsync()
         {
-            return db.Stewardesses;
+            return await db.Stewardesses.ToListAsync();
         }
 
-        public Stewardess Get(int id)
+        public async Task<Stewardess> GetAsync(int id)
         {
-            return db.Stewardesses.FirstOrDefault(item => item.Id == id);
+            return await db.Stewardesses.FirstOrDefaultAsync(item => item.Id == id);
         }
 
-        public void Add(Stewardess entity)
+        public async Task CreateAsync(Stewardess entity)
         {
-            db.Stewardesses.Add(entity);
+            await db.Stewardesses.AddAsync(entity);
         }
 
-        public void Remove(Stewardess entity)
+        public async Task DeleteAsync(int id)
         {
-            db.Stewardesses.Remove(entity);
+            var stewardess = await db.Stewardesses.FindAsync(id).ConfigureAwait(false);
+            if (stewardess != null)
+            {
+                db.Stewardesses.Remove(stewardess);
+            }
         }
 
-        public bool UpdateObject(int id, Stewardess obj)
+        public bool Update(int id, Stewardess obj)
         {
             var flag = db.Stewardesses.Count(item => item.Id == id) == 0;
             if (flag)

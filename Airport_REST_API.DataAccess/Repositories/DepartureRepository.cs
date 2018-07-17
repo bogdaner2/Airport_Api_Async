@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,27 +14,31 @@ namespace Airport_REST_API.DataAccess.Repositories
         {
             db = context;
         }
-        public IEnumerable<Departures> GetAll()
+        public async Task<IEnumerable<Departures>> GetAllAsync()
         {
-            return db.Departures.Include(d => d.Aircraft).Include(c => c.Crew);
+            return await db.Departures.Include(d => d.Aircraft).Include(c => c.Crew).ToListAsync();
         }
 
-        public Departures Get(int id)
+        public async Task<Departures> GetAsync(int id)
         {
-            return GetAll().FirstOrDefault(item => item.Id == id);
+            return await db.Departures.Include(d => d.Aircraft).Include(c => c.Crew).FirstOrDefaultAsync(item => item.Id == id);
         }
 
-        public void Add(Departures entity)
+        public async Task CreateAsync(Departures entity)
         {
-           db.Departures.Add(entity);
+           await db.Departures.AddAsync(entity);
         }
 
-        public void Remove(Departures entity)
+        public async Task DeleteAsync(int id)
         {
-            db.Departures.Remove(entity);
+            var departure = await db.Departures.FindAsync(id).ConfigureAwait(false);
+            if (departure != null)
+            {
+                db.Departures.Remove(departure);
+            }
         }
 
-        public bool UpdateObject(int id, Departures obj)
+        public bool Update(int id, Departures obj)
         {
             var flag = db.Departures.Count(item => item.Id == id) == 0;
             if (flag)

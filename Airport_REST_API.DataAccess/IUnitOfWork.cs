@@ -1,4 +1,5 @@
-﻿using Airport_REST_API.DataAccess.Models;
+﻿using System.Threading.Tasks;
+using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.DataAccess.Repositories;
 
 namespace Airport_REST_API.DataAccess
@@ -13,6 +14,6 @@ namespace Airport_REST_API.DataAccess
         IRepository<Pilot> Pilots { get; }
         IRepository<Flight> Flights { get; }
         IRepository<Departures> Departures { get;}
-        void Save();
+        Task SaveAsync();
     }
 }
