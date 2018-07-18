@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
-using Airport_REST_API.DataAccess.Repositories;
 using Airport_REST_API.Services.Interfaces;
 using Airport_REST_API.Shared.DTO;
 using AutoMapper;
@@ -91,17 +90,13 @@ namespace Airport_REST_API.Services.Service
             using (HttpContent content = response.Content)
             {
                 string responsJson = await content.ReadAsStringAsync();
-                if (responsJson.StartsWith("<!DOCTYPE html>"))
-                    return HttpStatusCode.ServiceUnavailable;
+                if (response.StatusCode != HttpStatusCode.OK)
+                    return response.StatusCode;
                 crews = JsonConvert.DeserializeObject<List<LoadCrewDTO>>(responsJson);
             }
             var items = crews.Take(10).ToList();
-            string path = $"log_{DateTime.Now.ToString("yy-MM-dd__H-mm")}.csv";
-            Parallel.Invoke( 
-                async () => await LoadToDataBase(items) , 
-                async () => await WriteToCSV(items, 
-                    Path.Combine(Environment.CurrentDirectory,
-                        @"Logs\", path)));
+            var fileName = $"log_{DateTime.Now.ToString("yy-MM-dd__H-mm")}.csv";
+            await Task.WhenAll(LoadToDataBase(items),WriteToCSV(items, Path.Combine(Environment.CurrentDirectory, @"Logs\", fileName)));
             return HttpStatusCode.OK;
         }
        
@@ -140,23 +135,6 @@ namespace Airport_REST_API.Services.Service
                 x.id = 0;
                 await db.Crews.CreateAsync(_mapper.Map<Crew>(x));
             });
-            //foreach (var i in stewardess)
-            //{
-            //    i.Id = 0;
-            //    await db.Stewardess.CreateAsync(i);
-            //}
-
-            //foreach (var i in pilot)
-            //{
-            //    i.Id = 0;
-            //    await db.Pilots.CreateAsync(i);
-            //}
-
-            //foreach (var i in input)
-            //{
-            //    i.id = 0;
-            //    await db.Crews.CreateAsync(_mapper.Map<Crew>(i));
-            //}
             await db.SaveAsync();
         }
     }
