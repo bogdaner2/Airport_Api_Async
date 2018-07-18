@@ -40,7 +40,7 @@ namespace Airport_REST_API.Services.Service
 
         public async Task<bool> CreateObjectAsync(FlightDTO obj)
         {
-            var tickets = db.Tickets.GetAllAsync().Result.Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
+            var tickets = (await db.Tickets.GetAllAsync()).Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
             if (tickets.Count == 0 || obj == null )
                 return false; 
             var flight = _mapper.Map<Flight>(obj);
@@ -59,7 +59,7 @@ namespace Airport_REST_API.Services.Service
 
         public async Task<bool> UpdateObjectAsync(int id, FlightDTO obj)
         {
-            var tickets = db.Tickets.GetAllAsync().Result.Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
+            var tickets = (await db.Tickets.GetAllAsync()).Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
             if (tickets.Count == 0 || obj == null)
                 return false; 
             var flight = _mapper.Map<Flight>(obj);

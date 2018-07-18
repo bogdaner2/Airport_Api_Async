@@ -47,7 +47,7 @@ namespace Airport_REST_API.Services.Service
 
         public async Task<bool> CreateObjectAsync(CrewDTO obj)
         {
-            var stewardesses = db.Stewardess.GetAllAsync().Result
+            var stewardesses = (await db.Stewardess.GetAllAsync())
                 .Where(i => obj.StewardessesId?.Contains(i.Id) == true).ToList();
             var pilot = await db.Pilots.GetAsync(obj.PilotId.Value);
             if (stewardesses.Count == 0 || pilot == null)
@@ -69,7 +69,7 @@ namespace Airport_REST_API.Services.Service
 
         public async Task<bool> UpdateObjectAsync(int id, CrewDTO obj)
         {
-            var stewardesses = db.Stewardess.GetAllAsync().Result
+            var stewardesses = (await db.Stewardess.GetAllAsync())
                 .Where(i => obj.StewardessesId?.Contains(i.Id) == true).ToList();
             var pilot = await db.Pilots.GetAsync(obj.PilotId.Value);
             if (stewardesses.Count == 0 || pilot == null)
@@ -82,7 +82,7 @@ namespace Airport_REST_API.Services.Service
             return result;
         }
 
-        public async Task<HttpStatusCode> LoadDataAsync()
+        public async Task<bool> LoadDataAsync()
         {
             List<LoadCrewDTO> crews;
             using (HttpClient client = new HttpClient())
@@ -91,13 +91,13 @@ namespace Airport_REST_API.Services.Service
             {
                 string responsJson = await content.ReadAsStringAsync();
                 if (response.StatusCode != HttpStatusCode.OK)
-                    return response.StatusCode;
+                    return false;
                 crews = JsonConvert.DeserializeObject<List<LoadCrewDTO>>(responsJson);
             }
             var items = crews.Take(10).ToList();
             var fileName = $"log_{DateTime.Now.ToString("yy-MM-dd__H-mm")}.csv";
             await Task.WhenAll(LoadToDataBase(items),WriteToCSV(items, Path.Combine(Environment.CurrentDirectory, @"Logs\", fileName)));
-            return HttpStatusCode.OK;
+            return true;
         }
        
         private async Task WriteToCSV(List<LoadCrewDTO> list,string path)

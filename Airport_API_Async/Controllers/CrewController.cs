@@ -60,10 +60,11 @@ namespace Airport_API_Async.Controllers
              return result == true ? StatusCode(200) : StatusCode(500);
         }
 
-        [HttpGet("crewload")]
-        public async Task<HttpStatusCode> LoadCrew()
+        [HttpPost("crewload")]
+        public async Task<IActionResult> LoadCrew()
         {
-            return await _service.LoadDataAsync();
+            var result = await _service.LoadDataAsync().ConfigureAwait(true);
+            return result == true ? StatusCode(200) : StatusCode(500);
         }
     }
 }
