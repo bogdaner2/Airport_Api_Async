@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Airport_REST_API.DataAccess\Airport_REST_API.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

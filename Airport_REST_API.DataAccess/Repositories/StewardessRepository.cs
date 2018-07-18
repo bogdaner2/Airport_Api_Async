@@ -29,7 +29,10 @@ namespace Airport_REST_API.DataAccess.Repositories
         {
             await db.Stewardesses.AddAsync(entity);
         }
-
+        public async Task<List<Stewardess>> GetLastRangeAsync(int n)
+        {
+            return await db.Stewardesses.TakeLast(n).ToListAsync();
+        }
         public async Task DeleteAsync(int id)
         {
             var stewardess = await db.Stewardesses.FindAsync(id).ConfigureAwait(false);

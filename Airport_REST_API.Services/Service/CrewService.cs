@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
+using Airport_REST_API.DataAccess.Repositories;
 using Airport_REST_API.Services.Interfaces;
 using Airport_REST_API.Shared.DTO;
 using AutoMapper;
@@ -81,7 +82,7 @@ namespace Airport_REST_API.Services.Service
             return result;
         }
 
-        public async Task<List<CrewDTO>> LoadDataAsync()
+        public async Task<bool> LoadDataAsync()
         {
             List<LoadCrewDTO> crews;
             using (HttpClient client = new HttpClient())
@@ -89,45 +90,74 @@ namespace Airport_REST_API.Services.Service
             using (HttpContent content = response.Content)
             {
                 string responsJson = await content.ReadAsStringAsync();
+                if (responsJson.StartsWith("<!DOCTYPE html>"))
+                    return false;
                 crews = JsonConvert.DeserializeObject<List<LoadCrewDTO>>(responsJson);
             }
-
             var items = crews.Take(10).ToList();
-            Mapper.Initialize(cfg => cfg.CreateMap<LoadCrewDTO, CrewDTO>()
-                .ForMember(x => x.StewardessesId, opt => opt.MapFrom(i => i.stewardess.Select(s => s.Id)))
-                .ForMember(x => x.PilotId, opt => opt.MapFrom(i => i.pilot.FirstOrDefault().Id)));
+            string path = $"log_{DateTime.Now.ToString("yy-MM-dd__H-mm")}.csv";
             Parallel.Invoke( 
-                () => {WriteToCSV(items, @"C:\Users\Богдан\Desktop\Binary Studio Academy\Airport_API_Async\Crew.csv");} ,
-                async () => await LoadDataAsync());
-            return Mapper.Map<List<CrewDTO>>(items);
+                async () => await LoadToDataBase(items) , 
+                async () => await WriteToCSV(items, 
+                    Path.Combine(Environment.CurrentDirectory,
+                        @"Logs\", path)));
+            return true;
         }
-
-        private void WriteToCSV(List<LoadCrewDTO> list,string path)
+       
+        private async Task WriteToCSV(List<LoadCrewDTO> list,string path)
         {
             using (var w = new StreamWriter(path))
             {
+                await w.WriteLineAsync("id,pilot,stewardess");
                 foreach (var row in list)
                 {
                     var id = row.id;
-                    var pilot = row.pilot;
-                    var stewardesses = row.stewardess;
+                    var pilot = JsonConvert.SerializeObject(row.pilot.FirstOrDefault());
+                    //var pilotstr = $"{pilot.Id} {pilot.FirstName} {pilot.LastName} {pilot.DateOfBirth} {pilot.Experience}";
+                    var stewardesses = JsonConvert.SerializeObject(row.stewardess);
                     var line = string.Format("{0},\"{1}\",\"{2}\"", id,pilot, stewardesses);
-                    w.WriteLine(line);
+                    await w.WriteLineAsync(line);
                     w.Flush();
                 }
             }
         }
-
         private async Task LoadToDataBase(List<LoadCrewDTO> input)
         {
-            foreach (var crew in input)
+            var stewardess = input.SelectMany(i => i.stewardess);
+            var pilot = input.SelectMany(i => i.pilot);
+            stewardess.ToList().ForEach(async x =>
             {
-                await db.Pilots.CreateAsync(_mapper.Map<Pilot>(crew.pilot));
-                foreach (var stewardess in crew.stewardess)
-                {
-                    await db.Stewardess.CreateAsync(_mapper.Map<Stewardess>(stewardess));
-                }
-            }
+                x.Id = 0;
+                await db.Stewardess.CreateAsync(x);
+            });
+            pilot.ToList().ForEach(async x =>
+            {
+                x.Id = 0;
+                await db.Pilots.CreateAsync(x);
+            });
+            input.ToList().ForEach(async x =>
+            {
+                x.id = 0;
+                await db.Crews.CreateAsync(_mapper.Map<Crew>(x));
+            });
+            //foreach (var i in stewardess)
+            //{
+            //    i.Id = 0;
+            //    await db.Stewardess.CreateAsync(i);
+            //}
+
+            //foreach (var i in pilot)
+            //{
+            //    i.Id = 0;
+            //    await db.Pilots.CreateAsync(i);
+            //}
+
+            //foreach (var i in input)
+            //{
+            //    i.id = 0;
+            //    await db.Crews.CreateAsync(_mapper.Map<Crew>(i));
+            //}
+            await db.SaveAsync();
         }
     }
 }

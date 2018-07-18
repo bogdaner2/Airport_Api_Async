@@ -26,19 +26,19 @@ namespace Airport_API_Async
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IUnitOfWork,UnitOfWork>();
-            services.AddTransient<ITicketService,TicketService>();
-            services.AddTransient<IAircraftService, AircraftService>();
-            services.AddTransient<IFlightService, FlightService>();
-            services.AddTransient<IAircraftTypeService, AircraftTypeService>();
-            services.AddTransient<ICrewService, CrewService>();
-            services.AddTransient<IStewardessService, StewardessService>();
-            services.AddTransient<IPilotService, PilotService>();
-            services.AddTransient<IDepartureService,DepartureService>();
+            services.AddDbContext<AirportContext>(options => options.UseSqlServer(Configuration.GetSection("Connection").Value));
+            services.AddScoped<IUnitOfWork,UnitOfWork>();
+            services.AddScoped<ITicketService,TicketService>();
+            services.AddScoped<IAircraftService, AircraftService>();
+            services.AddScoped<IFlightService, FlightService>();
+            services.AddScoped<IAircraftTypeService, AircraftTypeService>();
+            services.AddScoped<ICrewService, CrewService>();
+            services.AddScoped<IStewardessService, StewardessService>();
+            services.AddScoped<IPilotService, PilotService>();
+            services.AddScoped<IDepartureService,DepartureService>();
             services.AddScoped<UnitOfWork>();
             var mapper = MapperConfiguration().CreateMapper();
             services.AddSingleton(_ => mapper);
-            services.AddDbContext<AirportContext>(options => options.UseSqlServer(Configuration.GetSection("Connection").Value));
             services.AddTransient<DataInitializer>();
             services.AddMvc();
         }
@@ -67,8 +67,10 @@ namespace Airport_API_Async
                     .ForMember(i => i.Type, opt => opt.Ignore())
                     .ForMember(i => i.Lifetime,opt => opt.MapFrom(m => DateTime.Now - DateTime.Parse(m.Lifetime)));
                 cfg.CreateMap<PilotDTO, Pilot>()
-                    .ForMember(i => i.Id, opt => opt.Ignore());
+                    .ForMember(i => i.Id, opt => opt.Ignore())
+                    .ForMember(i => i.DateOfBirth, opt => opt.MapFrom(x => DateTime.Parse(x.DateOfBirth)));
                 cfg.CreateMap<StewardessDTO, Stewardess>()
+                    .ForMember(i => i.DateOfBirth, opt => opt.MapFrom(x => DateTime.Parse(x.DateOfBirth)))
                     .ForMember(i => i.Id, opt => opt.Ignore());
                 cfg.CreateMap<AircraftTypeDTO, AircraftType>()
                     .ForMember(i => i.Id, opt => opt.Ignore());
@@ -103,6 +105,11 @@ namespace Airport_API_Async
                 cfg.CreateMap<Crew, CrewDTO>()
                     .ForMember(i => i.StewardessesId, opt => opt.MapFrom(m => m.Stewardesses.Select(s => s.Id)))
                     .ForMember(i => i.PilotId, opt => opt.MapFrom(m => m.Pilot.Id));
+                //cfg.CreateMap<LoadCrewDTO, CrewDTO>()
+                //    .ForMember(x => x.StewardessesId, opt => opt.MapFrom(i => i.stewardess.Select(s => s.Id)))
+                //    .ForMember(x => x.PilotId, opt => opt.MapFrom(i => i.pilot.FirstOrDefault().Id));
+                cfg.CreateMap<LoadCrewDTO, Crew>().ForMember(x => x.Pilot,opt => opt.MapFrom(i => i.pilot.FirstOrDefault()))
+                    .ForMember(x => x.Stewardesses, opt => opt.MapFrom(i => i.stewardess));
 
             });
             return config;

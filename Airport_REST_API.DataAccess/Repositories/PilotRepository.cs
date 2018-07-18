@@ -24,6 +24,16 @@ namespace Airport_REST_API.DataAccess.Repositories
             return await db.Pilots.FirstOrDefaultAsync(item => item.Id == id);
         }
 
+        public async Task CreateRangeAsync(List<Pilot> entity)
+        {
+            await db.Pilots.AddRangeAsync(entity);
+        }
+
+        public async Task<Pilot> GetLastAsync()
+        {
+            return await db.Pilots.LastOrDefaultAsync();
+        }
+
         public async Task CreateAsync(Pilot entity)
         {
             await db.Pilots.AddAsync(entity);

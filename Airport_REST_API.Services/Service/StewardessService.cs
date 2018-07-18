@@ -39,7 +39,6 @@ namespace Airport_REST_API.Services.Service
             await db.SaveAsync();
             return true;
         }
-
         public async Task<bool> CreateObjectAsync(StewardessDTO obj)
         {
             if (obj != null)

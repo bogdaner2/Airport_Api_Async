@@ -62,7 +62,8 @@ namespace Airport_API_Async.Controllers
         [HttpGet("crewload")]
         public async Task<IActionResult> LoadCrew()
         {
-            return Ok(await _service.LoadDataAsync());
+            var result = await _service.LoadDataAsync();
+            return result == true ? StatusCode(200) : StatusCode(500);
         }
     }
 }

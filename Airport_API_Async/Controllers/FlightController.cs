@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Airport_REST_API.Services;
 using Airport_REST_API.Services.Interfaces;
 using Airport_REST_API.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -9,9 +10,11 @@ namespace Airport_API_Async.Controllers
     public class FlightController : Controller
     {
         private readonly IFlightService _service;
+        private readonly Helper helper;
         public FlightController(IFlightService service)
         {
             _service = service;
+            helper = new Helper(service,3000);
         }
         // GET api/flight
         [HttpGet]
@@ -57,6 +60,12 @@ namespace Airport_API_Async.Controllers
         {
             var result = await _service.DeleteObjectAsync(id);
             return result == true ? StatusCode(200) : StatusCode(500);
+        }
+
+        [HttpGet("listdelay")]
+        public async Task<IActionResult> Delay()
+        {
+            return Ok(await helper.GetFlightsDelay());
         }
     }
 }

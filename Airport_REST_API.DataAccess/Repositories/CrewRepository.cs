@@ -29,6 +29,11 @@ namespace Airport_REST_API.DataAccess.Repositories
             await db.Crews.AddAsync(entity);
         }
 
+        public async Task CreateRangeAsync(List<Crew> entity)
+        {
+            await db.Crews.AddRangeAsync(entity);
+        }
+
         public async Task DeleteAsync(int id)
         {
             var crew = await db.Crews.FindAsync(id).ConfigureAwait(false);
