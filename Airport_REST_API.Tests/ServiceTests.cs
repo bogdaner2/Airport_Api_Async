@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.DataAccess.Repositories;
@@ -48,9 +49,9 @@ namespace Airport_REST_API.Tests
         public void ReturnSave()
         {
             //Act
-            service.Add(new TicketDTO());
+            service.CreateObjectAsync(new TicketDTO());
             //Assert
-            mockUoW.Verify(x => x.Save());
+            mockUoW.Verify(x => x.SaveAsync());
         }
         [Test]
         public void Service_Should_ReturnFalse_When_UpdateNoExistingObject()
@@ -59,7 +60,7 @@ namespace Airport_REST_API.Tests
             context.Setup(x => x.Tickets).Returns(mockSet.Object);
             var rep = new TicketRepository(context.Object);
             mockUoW.Setup(x => x.Tickets).Returns(rep);
-            var result = service.Update(0, new TicketDTO());
+            var result = service.UpdateObjectAsync(0, new TicketDTO()).Result;
             //Assert
             Assert.True(result == false);
         }
@@ -73,7 +74,7 @@ namespace Airport_REST_API.Tests
                 new Ticket {Id = 2,Number = "AABBRT",Price = 120},
                 new Ticket {Id = 3,Number = "AAABR2",Price = 180},
             };
-            mockUoW.Setup(x => x.Tickets.GetAll()).Returns(tickets);
+            mockUoW.Setup(x => x.Tickets.GetAllAsync()).Returns(Task.FromResult(tickets.AsEnumerable()));
             var serviceWithMapper = new TicketService(mockUoW.Object, new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TicketDTO, Ticket>()
@@ -81,7 +82,7 @@ namespace Airport_REST_API.Tests
                 cfg.CreateMap<Ticket, TicketDTO>();
             }).CreateMapper());
             // Act
-            var result = serviceWithMapper.GetCollection();
+            var result = serviceWithMapper.GetCollectionAsync().Result;
             // Assert
             Assert.AreEqual(tickets.Count, result.ToList().Count);
         }
@@ -92,7 +93,7 @@ namespace Airport_REST_API.Tests
             context.Setup(x => x.Tickets).Returns(mockSet.Object);
             var rep = new TicketRepository(context.Object);
             mockUoW.Setup(x => x.Tickets).Returns(rep);
-            var result = service.RemoveObject(3);
+            var result = service.DeleteObjectAsync(3).Result;
             //Assert
             Assert.True(result == false);
         }
@@ -100,9 +101,9 @@ namespace Airport_REST_API.Tests
         public void GetTicketById_WithNegativeId_ShouldReturnEmptyObject()
         {
             // Arrange
-            mockUoW.Setup(x => x.Tickets.Get(It.Is<int>(i => i < 0))).Returns((Ticket)null);
+            mockUoW.Setup(x => x.Tickets.GetAsync(It.Is<int>(i => i < 0))).Returns(Task.FromResult((Ticket)null));
             // Act
-            var result = service.GetObject(-10);
+            var result = service.GetObjectAsync(-10).Result;
             // Assert
             Assert.IsTrue(result.Price == 0 && result.Number == null && result.Id == 0);
         }

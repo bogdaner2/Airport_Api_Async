@@ -55,7 +55,7 @@ namespace Airport_REST_API.Tests
         public void Get_ReturnOkStatusCode()
         {
             //Act
-            var result = _ticketController.GetAll() as OkObjectResult;
+            var result = _ticketController.GetAll().Result as OkObjectResult;
             //Assert
             Assert.True(result.StatusCode == 200);
         }      
@@ -63,7 +63,7 @@ namespace Airport_REST_API.Tests
         public void Get_Should_ReturnObject_When_IdIsCorrect()
         {
             //Act
-            var result = _ticketController.Get(2) as OkObjectResult;
+            var result = _ticketController.Get(2).Result as OkObjectResult;
             //Assert
             Assert.True(result.Value != null);
         }
@@ -71,7 +71,7 @@ namespace Airport_REST_API.Tests
         public void Get_Should_ReturnObject_When_IdIsNegative()
         {
             //Act
-            var result = _ticketController.Get(-1) as OkObjectResult;
+            var result = _ticketController.Get(-1).Result as OkObjectResult;
             //Assert
             Assert.True(result.Value == null);
         }
@@ -95,7 +95,7 @@ namespace Airport_REST_API.Tests
             //Arrange
             var correctItem = new TicketDTO { Number = "TestAdd1", Price = 1500 };
             //Act
-            var result = _ticketController.Post(correctItem) as StatusCodeResult;
+            var result = _ticketController.Post(correctItem).Result as StatusCodeResult;
             //Assert
             Assert.AreEqual(result.StatusCode,200);
             //Reset
@@ -114,17 +114,17 @@ namespace Airport_REST_API.Tests
         [Test]
         public void Post_Return500Status_WhenModelIsInvalid()
         {
-            var result = _ticketController.Post(new TicketDTO()) as StatusCodeResult;
+            var result = _ticketController.Post(new TicketDTO()).Result as StatusCodeResult;
             //Assert
             Assert.True(result.StatusCode == 500);
         }
         [Test]
         public void Remove_Return_OkStatusCode()
         {
-            _ticketController.Post(new TicketDTO { Number = "RemoveTest", Price = 100 });
+            _ticketController.Post(new TicketDTO { Number = "RemoveTest", Price = 100 }).Wait();
             var lastIndex = _context.Tickets.Last().Id;
             //Act 
-            var result = _ticketController.Delete(lastIndex) as StatusCodeResult;
+            var result = _ticketController.Delete(lastIndex).Result as StatusCodeResult;
             //Assert
             Assert.True(result.StatusCode == 200);
             //Reset
@@ -134,7 +134,7 @@ namespace Airport_REST_API.Tests
         public void Remove_DecreaseCountOfSet()
         {
             //Arrange
-            _ticketController.Post(new TicketDTO {Number = "RemoveTest", Price = 100});
+            _ticketController.Post(new TicketDTO {Number = "RemoveTest", Price = 100}).Wait();
             var initialCount = _context.Tickets.ToList().Count;
             var lastIndex = _context.Tickets.Last().Id;
             //Act
@@ -149,7 +149,7 @@ namespace Airport_REST_API.Tests
             //Arrange
             var correctItem = new CrewDTO { PilotId = 1,StewardessesId = new List<int> { 1,2}};
             //Act
-            var result = _crewController.Post(correctItem) as StatusCodeResult;
+            var result = _crewController.Post(correctItem).Result as StatusCodeResult;
             //Assert
             Assert.AreEqual(result.StatusCode, 200);
             //Reset
@@ -161,7 +161,7 @@ namespace Airport_REST_API.Tests
             //Arrange
             var correctItem = new CrewDTO { PilotId = 1 };
             //Act
-            var result = _crewController.Put(1,correctItem) as StatusCodeResult;
+            var result = _crewController.Put(1,correctItem).Result as StatusCodeResult;
             //Assert
             Assert.AreEqual(result.StatusCode, 500);
         }
@@ -174,7 +174,7 @@ namespace Airport_REST_API.Tests
             _crewController.Post(item);
             var result = _context.Crews.OrderByDescending(c => c.Id).First().Stewardesses;
             //Assert
-            Assert.IsTrue(result[0] == _uow.Stewardess.Get(1) && result[1] == _uow.Stewardess.Get(2));
+            Assert.IsTrue(result[0] == _uow.Stewardess.GetAsync(1).Result && result[1] == _uow.Stewardess.GetAsync(2).Result);
             //Reset
             _crewController.Delete(_context.Crews.Last().Id);
         }
@@ -182,19 +182,19 @@ namespace Airport_REST_API.Tests
         public void Update_Return_OkStatusCode()
         {
             var ticket = new TicketDTO {Id = 1 ,Number = "Test", Price = 1000};
-            var result = _ticketController.Put(3,ticket);
+            var result = _ticketController.Put(3,ticket).Result;
             Assert.AreEqual(new StatusCodeResult(200).StatusCode,((StatusCodeResult)result).StatusCode);
         }
         [Test]
         public void Update_ChangedObject_Should_NotEqualInitialObject()
         {
             //Arrange
-            var temp = _uow.Tickets.Get(2);
+            var temp = _uow.Tickets.GetAsync(2).Result;
             var initial = new { temp.Id, temp.Number, temp.Price};
             var ticket = new TicketDTO { Number = "Test", Price = 1000 };
             //Act
-            _ticketController.Put(2, ticket);
-            var current = _uow.Tickets.Get(2);
+            _ticketController.Put(2, ticket).Wait();
+            var current = _uow.Tickets.GetAsync(2).Result;
             //Assert
             Assert.IsFalse(current.Number == initial.Number);
             //Reset
@@ -204,7 +204,7 @@ namespace Airport_REST_API.Tests
         public void ReturnFalse_When_UpdateObjectWithNegativeId()
         {
             //Act
-            var result = _ticketService.Update(-1, It.IsAny<TicketDTO>());
+            var result = _ticketService.UpdateObjectAsync(-1, It.IsAny<TicketDTO>()).Result;
             //Assert
             Assert.IsFalse(result);    
         }
