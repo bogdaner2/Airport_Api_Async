@@ -105,9 +105,6 @@ namespace Airport_API_Async
                 cfg.CreateMap<Crew, CrewDTO>()
                     .ForMember(i => i.StewardessesId, opt => opt.MapFrom(m => m.Stewardesses.Select(s => s.Id)))
                     .ForMember(i => i.PilotId, opt => opt.MapFrom(m => m.Pilot.Id));
-                //cfg.CreateMap<LoadCrewDTO, CrewDTO>()
-                //    .ForMember(x => x.StewardessesId, opt => opt.MapFrom(i => i.stewardess.Select(s => s.Id)))
-                //    .ForMember(x => x.PilotId, opt => opt.MapFrom(i => i.pilot.FirstOrDefault().Id));
                 cfg.CreateMap<LoadCrewDTO, Crew>().ForMember(x => x.Pilot,opt => opt.MapFrom(i => i.pilot.FirstOrDefault()))
                     .ForMember(x => x.Stewardesses, opt => opt.MapFrom(i => i.stewardess));
 

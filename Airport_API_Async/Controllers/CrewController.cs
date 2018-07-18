@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 using Airport_REST_API.Services.Interfaces;
 using Airport_REST_API.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -60,10 +61,9 @@ namespace Airport_API_Async.Controllers
         }
 
         [HttpGet("crewload")]
-        public async Task<IActionResult> LoadCrew()
+        public async Task<HttpStatusCode> LoadCrew()
         {
-            var result = await _service.LoadDataAsync();
-            return result == true ? StatusCode(200) : StatusCode(500);
+            return await _service.LoadDataAsync();
         }
     }
 }

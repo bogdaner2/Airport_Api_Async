@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
@@ -82,7 +83,7 @@ namespace Airport_REST_API.Services.Service
             return result;
         }
 
-        public async Task<bool> LoadDataAsync()
+        public async Task<HttpStatusCode> LoadDataAsync()
         {
             List<LoadCrewDTO> crews;
             using (HttpClient client = new HttpClient())
@@ -91,7 +92,7 @@ namespace Airport_REST_API.Services.Service
             {
                 string responsJson = await content.ReadAsStringAsync();
                 if (responsJson.StartsWith("<!DOCTYPE html>"))
-                    return false;
+                    return HttpStatusCode.ServiceUnavailable;
                 crews = JsonConvert.DeserializeObject<List<LoadCrewDTO>>(responsJson);
             }
             var items = crews.Take(10).ToList();
@@ -101,7 +102,7 @@ namespace Airport_REST_API.Services.Service
                 async () => await WriteToCSV(items, 
                     Path.Combine(Environment.CurrentDirectory,
                         @"Logs\", path)));
-            return true;
+            return HttpStatusCode.OK;
         }
        
         private async Task WriteToCSV(List<LoadCrewDTO> list,string path)
@@ -113,7 +114,6 @@ namespace Airport_REST_API.Services.Service
                 {
                     var id = row.id;
                     var pilot = JsonConvert.SerializeObject(row.pilot.FirstOrDefault());
-                    //var pilotstr = $"{pilot.Id} {pilot.FirstName} {pilot.LastName} {pilot.DateOfBirth} {pilot.Experience}";
                     var stewardesses = JsonConvert.SerializeObject(row.stewardess);
                     var line = string.Format("{0},\"{1}\",\"{2}\"", id,pilot, stewardesses);
                     await w.WriteLineAsync(line);
