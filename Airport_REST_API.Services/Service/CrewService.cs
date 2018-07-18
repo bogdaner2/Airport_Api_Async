@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -36,13 +37,11 @@ namespace Airport_REST_API.Services.Service
         public async Task<bool> DeleteObjectAsync(int id)
         {
 
-            if (id < 0)
-            {
-                await db.Crews.DeleteAsync(id);
-                await db.SaveAsync();
-                return true;
-            }
-            return false;
+            if (id < 1)
+                return false;
+            await db.Crews.DeleteAsync(id);
+            await db.SaveAsync();
+            return true;
         }
 
         public async Task<bool> CreateObjectAsync(CrewDTO obj)
@@ -82,19 +81,53 @@ namespace Airport_REST_API.Services.Service
             return result;
         }
 
-        public async Task<List<Crew>> LoadDataAsync()
+        public async Task<List<CrewDTO>> LoadDataAsync()
         {
-            List<Crew> crews;
+            List<LoadCrewDTO> crews;
             using (HttpClient client = new HttpClient())
             using (HttpResponseMessage response = await client.GetAsync("http://5b128555d50a5c0014ef1204.mockapi.io/crew"))
             using (HttpContent content = response.Content)
             {
                 string responsJson = await content.ReadAsStringAsync();
-                crews = JsonConvert.DeserializeObject<List<Crew>>(responsJson);
+                crews = JsonConvert.DeserializeObject<List<LoadCrewDTO>>(responsJson);
             }
 
             var items = crews.Take(10).ToList();
-            return items;
+            Mapper.Initialize(cfg => cfg.CreateMap<LoadCrewDTO, CrewDTO>()
+                .ForMember(x => x.StewardessesId, opt => opt.MapFrom(i => i.stewardess.Select(s => s.Id)))
+                .ForMember(x => x.PilotId, opt => opt.MapFrom(i => i.pilot.FirstOrDefault().Id)));
+            Parallel.Invoke( 
+                () => {WriteToCSV(items, @"C:\Users\Богдан\Desktop\Binary Studio Academy\Airport_API_Async\Crew.csv");} ,
+                async () => await LoadDataAsync());
+            return Mapper.Map<List<CrewDTO>>(items);
+        }
+
+        private void WriteToCSV(List<LoadCrewDTO> list,string path)
+        {
+            using (var w = new StreamWriter(path))
+            {
+                foreach (var row in list)
+                {
+                    var id = row.id;
+                    var pilot = row.pilot;
+                    var stewardesses = row.stewardess;
+                    var line = string.Format("{0},\"{1}\",\"{2}\"", id,pilot, stewardesses);
+                    w.WriteLine(line);
+                    w.Flush();
+                }
+            }
+        }
+
+        private async Task LoadToDataBase(List<LoadCrewDTO> input)
+        {
+            foreach (var crew in input)
+            {
+                await db.Pilots.CreateAsync(_mapper.Map<Pilot>(crew.pilot));
+                foreach (var stewardess in crew.stewardess)
+                {
+                    await db.Stewardess.CreateAsync(_mapper.Map<Stewardess>(stewardess));
+                }
+            }
         }
     }
 }

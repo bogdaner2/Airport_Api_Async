@@ -82,12 +82,12 @@ namespace Airport_REST_API.Tests
             var correctItem = new TicketDTO {Number = "TestAdd2", Price = 1000};
             var initialCount = _context.Tickets.ToList().Count;
             //Act
-            _ticketController.Post(correctItem);
+            _ticketController.Post(correctItem).Wait();
             var afterCount = _context.Tickets.ToList().Count;
             //Assert
             Assert.IsFalse(initialCount == afterCount);
             //Reset
-            _ticketController.Delete(_context.Tickets.Last().Id);
+            _ticketController.Delete(_context.Tickets.Last().Id).Wait();
         }
         [Test]
         public void AddItem_ReturnOKStatus_When_ItemAdded()
@@ -138,7 +138,7 @@ namespace Airport_REST_API.Tests
             var initialCount = _context.Tickets.ToList().Count;
             var lastIndex = _context.Tickets.Last().Id;
             //Act
-            _ticketController.Delete(lastIndex);
+            _ticketController.Delete(lastIndex).Wait();
             var afterCount = _context.Tickets.ToList().Count;
             //Assert
             Assert.IsFalse(initialCount == afterCount);
@@ -153,7 +153,7 @@ namespace Airport_REST_API.Tests
             //Assert
             Assert.AreEqual(result.StatusCode, 200);
             //Reset
-            _crewController.Delete(_context.Crews.Last().Id);
+            _crewController.Delete(_context.Crews.Last().Id).Wait();
         }
         [Test]
         public void Post_Return500_When_CrewWithoutStewardesses()

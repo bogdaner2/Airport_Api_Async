@@ -93,7 +93,7 @@ namespace Airport_REST_API.Tests
             context.Setup(x => x.Tickets).Returns(mockSet.Object);
             var rep = new TicketRepository(context.Object);
             mockUoW.Setup(x => x.Tickets).Returns(rep);
-            var result = service.DeleteObjectAsync(3).Result;
+            var result = service.DeleteObjectAsync(0).Result;
             //Assert
             Assert.True(result == false);
         }

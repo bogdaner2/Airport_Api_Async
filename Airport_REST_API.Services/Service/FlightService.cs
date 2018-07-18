@@ -31,7 +31,7 @@ namespace Airport_REST_API.Services.Service
 
         public async Task<bool> DeleteObjectAsync(int id)
         {
-            if (id < 0)
+            if (id < 1)
                 return false;
             await db.Flights.DeleteAsync(id);
             await db.SaveAsync();

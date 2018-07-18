@@ -34,12 +34,10 @@ namespace Airport_REST_API.Services.Service
         public async Task<bool> DeleteObjectAsync(int id)
         {
             if (id < 1)
-            {
-                await db.Pilots.DeleteAsync(id);
-                await db.SaveAsync();
-                return true;
-            }
-            return false;
+                return false;
+            await db.Pilots.DeleteAsync(id);
+            await db.SaveAsync();
+            return true;
         }
 
         public async Task<bool> CreateObjectAsync(PilotDTO obj)
