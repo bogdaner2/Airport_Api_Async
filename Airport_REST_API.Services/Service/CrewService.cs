@@ -47,7 +47,7 @@ namespace Airport_REST_API.Services.Service
 
         public async Task<bool> CreateObjectAsync(CrewDTO obj)
         {
-            var stewardesses = db.Stewardess.GetAllAsync().Result
+            var stewardesses = (await db.Stewardess.GetAllAsync())
                 .Where(i => obj.StewardessesId?.Contains(i.Id) == true).ToList();
             var pilot = await db.Pilots.GetAsync(obj.PilotId.Value);
             if (stewardesses.Count == 0 || pilot == null)
@@ -69,7 +69,7 @@ namespace Airport_REST_API.Services.Service
 
         public async Task<bool> UpdateObjectAsync(int id, CrewDTO obj)
         {
-            var stewardesses = db.Stewardess.GetAllAsync().Result
+            var stewardesses = (await db.Stewardess.GetAllAsync())
                 .Where(i => obj.StewardessesId?.Contains(i.Id) == true).ToList();
             var pilot = await db.Pilots.GetAsync(obj.PilotId.Value);
             if (stewardesses.Count == 0 || pilot == null)
