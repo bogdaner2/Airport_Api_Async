@@ -6,6 +6,6 @@ namespace Airport_REST_API.Services.Interfaces
 {
     public interface ICrewService : IService<CrewDTO>
     {
-        Task<HttpStatusCode> LoadDataAsync();
+        Task<bool> LoadDataAsync();
     }
 }
