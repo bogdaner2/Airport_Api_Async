@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.Services.Interfaces;
@@ -18,36 +19,35 @@ namespace Airport_REST_API.Services.Service
             db = uof;
             _mapper = mapper;
         }
-        public IEnumerable<AircraftTypeDTO> GetCollection()
+        public async Task<IEnumerable<AircraftTypeDTO>> GetCollectionAsync()
         {
-            return _mapper.Map<List<AircraftTypeDTO>>(db.Types.GetAll());
+            return _mapper.Map<List<AircraftTypeDTO>>(await db.Types.GetAllAsync());
         }
 
-        public AircraftTypeDTO GetObject(int id)
+        public async Task<AircraftTypeDTO> GetObjectAsync(int id)
         {
-            return _mapper.Map<AircraftTypeDTO>(db.Types.Get(id));
+            return _mapper.Map<AircraftTypeDTO>(await db.Types.GetAsync(id));
         }
 
-        public bool RemoveObject(int id)
+        public async Task<bool> DeleteObjectAsync(int id)
         {
-            var type = db.Types.Get(id);
-            if (type != null)
+            if (id < 1)
             {
-                db.Types.Remove(type);
-                db.Save();
+                await db.Types.DeleteAsync(id);
+                await db.SaveAsync();
                 return true;
             }
             return false;
         }
 
-        public bool Add(AircraftTypeDTO obj)
+        public async Task<bool> CreateObjectAsync(AircraftTypeDTO obj)
         {
             if (obj != null)
             {
-                db.Types.Add(_mapper.Map<AircraftType>(obj));
+                await db.Types.CreateAsync(_mapper.Map<AircraftType>(obj));
                 try
                 {
-                    db.Save();
+                    await db.SaveAsync();
                 }
                 catch (Exception)
                 {
@@ -58,10 +58,10 @@ namespace Airport_REST_API.Services.Service
             return false;
         }
 
-        public bool Update(int id, AircraftTypeDTO obj)
+        public async Task<bool> UpdateObjectAsync(int id, AircraftTypeDTO obj)
         {
-            var result = db.Types.UpdateObject(id, _mapper.Map<AircraftType>(obj));
-            db.Save();
+            var result = db.Types.Update(id, _mapper.Map<AircraftType>(obj));
+            await db.SaveAsync();
             return result;
         }
     }

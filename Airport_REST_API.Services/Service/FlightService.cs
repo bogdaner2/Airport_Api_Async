@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.Services.Interfaces;
@@ -18,37 +19,36 @@ namespace Airport_REST_API.Services.Service
             db = uof;
             _mapper = mapper;
         }
-        public IEnumerable<FlightDTO> GetCollection()
+        public async Task<IEnumerable<FlightDTO>> GetCollectionAsync()
         {
-            return _mapper.Map<List<FlightDTO>>(db.Flights.GetAll());
+            return _mapper.Map<List<FlightDTO>>(await db.Flights.GetAllAsync());
         }
 
-        public FlightDTO GetObject(int id)
+        public async Task<FlightDTO> GetObjectAsync(int id)
         {
-            return _mapper.Map<FlightDTO>(db.Flights.Get(id));
+            return _mapper.Map<FlightDTO>(await db.Flights.GetAsync(id));
         }
 
-        public bool RemoveObject(int id)
+        public async Task<bool> DeleteObjectAsync(int id)
         {
-            var flight = db.Flights.Get(id);
-            if (flight == null)
+            if (id < 0)
                 return false;
-            db.Flights.Remove(flight);
-            db.Save();
+            await db.Flights.DeleteAsync(id);
+            await db.SaveAsync();
             return true;
         }
 
-        public bool Add(FlightDTO obj)
+        public async Task<bool> CreateObjectAsync(FlightDTO obj)
         {
-            var tickets = db.Tickets.GetAll().Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
+            var tickets = db.Tickets.GetAllAsync().Result.Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
             if (tickets.Count == 0 || obj == null )
                 return false; 
             var flight = _mapper.Map<Flight>(obj);
             flight.Ticket = tickets;
-            db.Flights.Add(flight);
+            await db.Flights.CreateAsync(flight);
             try
             {
-                db.Save();
+                await db.SaveAsync();
             }
             catch (Exception)
             {
@@ -57,15 +57,15 @@ namespace Airport_REST_API.Services.Service
             return true;
         }
 
-        public bool Update(int id, FlightDTO obj)
+        public async Task<bool> UpdateObjectAsync(int id, FlightDTO obj)
         {
-            var tickets = db.Tickets.GetAll().Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
+            var tickets = db.Tickets.GetAllAsync().Result.Where(i => obj.TicketsId?.Contains(i.Id) == true).ToList();
             if (tickets.Count == 0 || obj == null)
                 return false; 
             var flight = _mapper.Map<Flight>(obj);
             flight.Ticket = tickets;
-            var result = db.Flights.UpdateObject(id, flight);
-            db.Save();
+            var result = db.Flights.Update(id, flight);
+            await db.SaveAsync();
             return result;
         }
     }

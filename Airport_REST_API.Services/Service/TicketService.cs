@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.Services.Interfaces;
@@ -19,36 +20,35 @@ namespace Airport_REST_API.Services.Service
             db = uof;
             _mapper = mapper;
         }
-        public IEnumerable<TicketDTO> GetCollection()
+        public async Task<IEnumerable<TicketDTO>> GetCollectionAsync()
         {
-            return _mapper.Map<List<TicketDTO>>(db.Tickets.GetAll());
+            return _mapper.Map<List<TicketDTO>>(await db.Tickets.GetAllAsync());
         }
 
-        public TicketDTO GetObject(int id)
+        public async Task<TicketDTO> GetObjectAsync(int id)
         {
-            return _mapper.Map<TicketDTO>(db.Tickets.Get(id)); ;
+            return _mapper.Map<TicketDTO>(await db.Tickets.GetAsync(id)); ;
         }
 
-        public bool RemoveObject(int id)
+        public async Task<bool> DeleteObjectAsync(int id)
         {
-            var ticket = db.Tickets.Get(id);
-            if (ticket != null)
+            if (id < 1)
             {
-                db.Tickets.Remove(ticket);
-                db.Save();
+                await db.Tickets.DeleteAsync(id);
+                await db.SaveAsync();
                 return true;
             }
             return false;
         }
 
-        public bool Add(TicketDTO ticket)
+        public async Task<bool> CreateObjectAsync(TicketDTO ticket)
         {
             if (ticket != null)
             {
-                db.Tickets.Add(_mapper.Map<Ticket>(ticket));
+                await db.Tickets.CreateAsync(_mapper.Map<Ticket>(ticket));
                 try
                 {
-                    db.Save();
+                   await db.SaveAsync();
                 }
                 catch (Exception)
                 {
@@ -59,10 +59,10 @@ namespace Airport_REST_API.Services.Service
             return false;
         }
 
-        public bool Update(int id,TicketDTO obj)
+        public async Task<bool> UpdateObjectAsync(int id,TicketDTO obj)
         {
-            var result = db.Tickets.UpdateObject(id, _mapper.Map<Ticket>(obj));
-            db.Save();
+            var result = db.Tickets.Update(id, _mapper.Map<Ticket>(obj));
+            await db.SaveAsync();
             return result;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.Services.Interfaces;
@@ -20,37 +21,36 @@ namespace Airport_REST_API.Services.Service
             _mapper = mapper;
         }
 
-        public IEnumerable<AircraftDTO> GetCollection()
+        public async Task<IEnumerable<AircraftDTO>> GetCollectionAsync()
         {
-            return _mapper.Map<List<AircraftDTO>>(db.Aircrafts.GetAll().ToList());
+            return _mapper.Map<List<AircraftDTO>>(await db.Aircrafts.GetAllAsync());
         }
 
-        public AircraftDTO GetObject(int id)
+        public async Task<AircraftDTO> GetObjectAsync(int id)
         {
-            return _mapper.Map<AircraftDTO>(db.Aircrafts.Get(id));
+            return _mapper.Map<AircraftDTO>(await db.Aircrafts.GetAsync(id));
         }
 
-        public bool RemoveObject(int id)
+        public async Task<bool> DeleteObjectAsync(int id)
         {
-            var aircraft = db.Aircrafts.Get(id);
-            if (aircraft == null)
+            if (id < 1)
                 return false;
-            db.Aircrafts.Remove(aircraft);
-            db.Save();
+            await db.Aircrafts.DeleteAsync(id);
+            await db.SaveAsync();
             return true;
         }
 
-        public bool Add(AircraftDTO obj)
+        public async Task<bool> CreateObjectAsync(AircraftDTO obj)
         {
-            var type = db.Types.Get(obj.TypeId);
+            var type = await db.Types.GetAsync(obj.TypeId);
             if (type == null)
                 return false;
             var aircraft = _mapper.Map<Aircraft>(obj);
             aircraft.Type = type;
-            db.Aircrafts.Add(aircraft);
+            await db.Aircrafts.CreateAsync(aircraft);
             try
             {
-                db.Save();
+                await db.SaveAsync();
             }
             catch (Exception)
             {
@@ -59,15 +59,16 @@ namespace Airport_REST_API.Services.Service
             return true;
         }
 
-        public bool Update(int id, AircraftDTO obj)
+        public async Task<bool> UpdateObjectAsync(int id, AircraftDTO obj)
         {
-            var type = db.Types.Get(obj.TypeId);
+            var type = await db.Types.GetAsync(obj.TypeId);
             if (type == null)
                 return false;
             var aircraft = _mapper.Map<Aircraft>(obj);
             aircraft.Type = type;
-            db.Save();
-            return db.Aircrafts.UpdateObject(id,aircraft);
+            var result = db.Aircrafts.Update(id, aircraft);
+            await db.SaveAsync();
+            return result;
         }
     }
 }

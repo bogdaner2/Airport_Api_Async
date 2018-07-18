@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Airport_REST_API.DataAccess;
 using Airport_REST_API.DataAccess.Models;
 using Airport_REST_API.Services.Interfaces;
@@ -20,36 +21,35 @@ namespace Airport_REST_API.Services.Service
             _mapper = mapper;
         }
 
-        public IEnumerable<StewardessDTO> GetCollection()
+        public async Task<IEnumerable<StewardessDTO>> GetCollectionAsync()
         {
-            return _mapper.Map<List<StewardessDTO>>(db.Stewardess.GetAll());
+            return _mapper.Map<List<StewardessDTO>>(await db.Stewardess.GetAllAsync());
         }
 
-        public StewardessDTO GetObject(int id)
+        public async Task<StewardessDTO> GetObjectAsync(int id)
         {
-            return _mapper.Map<StewardessDTO>(db.Stewardess.Get(id));
+            return _mapper.Map<StewardessDTO>(await db.Stewardess.GetAsync(id));
         }
 
-        public bool RemoveObject(int id)
+        public async Task<bool> DeleteObjectAsync(int id)
         {
-            var stewardess = db.Stewardess.Get(id);
-            if (stewardess != null)
+            if (id < 1)
             {
-                db.Stewardess.Remove(stewardess);
-                db.Save();
+                await db.Stewardess.DeleteAsync(id);
+                await db.SaveAsync();
                 return true;
             }
             return false;
         }
 
-        public bool Add(StewardessDTO obj)
+        public async Task<bool> CreateObjectAsync(StewardessDTO obj)
         {
             if (obj != null)
             {
-                db.Stewardess.Add(_mapper.Map<Stewardess>(obj));
+                await db.Stewardess.CreateAsync(_mapper.Map<Stewardess>(obj));
                 try
                 {
-                    db.Save();
+                    await db.SaveAsync();
                 }
                 catch (Exception)
                 {
@@ -60,10 +60,10 @@ namespace Airport_REST_API.Services.Service
             return false;
         }
 
-        public bool Update(int id, StewardessDTO obj)
+        public async Task<bool> UpdateObjectAsync(int id, StewardessDTO obj)
         {
-            var result = db.Stewardess.UpdateObject(id, _mapper.Map<Stewardess>(obj));
-            db.Save();
+            var result = db.Stewardess.Update(id, _mapper.Map<Stewardess>(obj));
+            await db.SaveAsync();
             return result;
         }
     }
