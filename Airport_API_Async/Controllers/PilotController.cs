@@ -17,46 +17,45 @@ namespace Airport_API_Async.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var collection = await _service.GetCollection();
-            return Ok(collection);
+            return Ok(await _service.GetCollectionAsync());
         }
 
         // GET api/Pilot/:id
         [HttpGet("{id:int}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return Ok(_service.GetObject(id));
+            return Ok(await _service.GetObjectAsync(id));
         }
 
         // POSt api/Pilot
         [HttpPost]
-        public IActionResult Post([FromBody]PilotDTO Pilot)
+        public async Task<IActionResult> Post([FromBody]PilotDTO Pilot)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = _service.Add(Pilot);
+            var result = await _service.CreateObjectAsync(Pilot);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
 
         // PUT api/Pilot
         [HttpPut("{id:int}")]
-        public IActionResult Put(int id,[FromBody]PilotDTO Pilot)
+        public async Task<IActionResult> Put(int id,[FromBody]PilotDTO Pilot)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = _service.Update(id,Pilot);
+            var result = await _service.UpdateObjectAsync(id,Pilot);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
 
         // PUT api/Pilot
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _service.RemoveObject(id);
+            var result = await _service.DeleteObjectAsync(id);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
     }

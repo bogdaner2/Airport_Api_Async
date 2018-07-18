@@ -82,7 +82,7 @@ namespace Airport_REST_API.Services.Service
             return result;
         }
 
-        public async Task<List<Crew>> LoadData()
+        public async Task<List<Crew>> LoadDataAsync()
         {
             List<Crew> crews;
             using (HttpClient client = new HttpClient())

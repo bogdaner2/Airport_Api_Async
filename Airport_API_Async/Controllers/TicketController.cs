@@ -1,4 +1,5 @@
-﻿using Airport_REST_API.Services.Interfaces;
+﻿using System.Threading.Tasks;
+using Airport_REST_API.Services.Interfaces;
 using Airport_REST_API.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,47 +15,47 @@ namespace Airport_API_Async.Controllers
         }
         // GET api/ticket
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_service.GetCollection());
+            return Ok(await _service.GetCollectionAsync());
         }
 
         // GET api/ticket/:id
         [HttpGet("{id:int}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return Ok(_service.GetObject(id));
+            return Ok(await _service.GetObjectAsync(id));
         }
 
         // POSt api/ticket
         [HttpPost]
-        public IActionResult Post([FromBody]TicketDTO ticket)
+        public async Task<IActionResult> Post([FromBody]TicketDTO ticket)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = _service.Add(ticket);
+            var result = await _service.CreateObjectAsync(ticket);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
 
         // PUT api/ticket
         [HttpPut("{id:int}")]
-        public IActionResult Put(int id,[FromBody]TicketDTO ticket)
+        public async Task<IActionResult> Put(int id,[FromBody]TicketDTO ticket)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = _service.Update(id,ticket);
+            var result = await _service.UpdateObjectAsync(id,ticket);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
 
         // Delete api/ticket
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _service.RemoveObject(id);
+            var result = await _service.DeleteObjectAsync(id);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
     }

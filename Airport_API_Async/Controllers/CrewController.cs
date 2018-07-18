@@ -1,4 +1,5 @@
-﻿using Airport_REST_API.Services.Interfaces;
+﻿using System.Threading.Tasks;
+using Airport_REST_API.Services.Interfaces;
 using Airport_REST_API.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,54 +15,54 @@ namespace Airport_API_Async.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_service.GetCollection());
+            return Ok(await _service.GetCollectionAsync());
         }
 
         // GET api/Crew/:id
         [HttpGet("{id:int}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return Ok(_service.GetObject(id));
+            return Ok(await _service.GetObjectAsync(id));
         }
 
         // POSt api/Crew
         [HttpPost]
-        public IActionResult Post([FromBody]CrewDTO crew)
+        public async Task<IActionResult> Post([FromBody]CrewDTO crew)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = _service.Add(crew);
+            var result = await _service.CreateObjectAsync(crew);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
 
         // PUT api/Crew
         [HttpPut("{id:int}")]
-        public IActionResult Put(int id, [FromBody]CrewDTO crew)
+        public async Task<IActionResult> Put(int id, [FromBody]CrewDTO crew)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = _service.Update(id, crew);
+            var result = await _service.UpdateObjectAsync(id, crew);
             return result == true ? StatusCode(200) : StatusCode(500);
         }
 
         // PUT api/Crew
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-             var result = _service.RemoveObject(id);
+             var result = await _service.DeleteObjectAsync(id);
              return result == true ? StatusCode(200) : StatusCode(500);
         }
 
         [HttpGet("crewload")]
-        public IActionResult LoadCrew()
+        public async Task<IActionResult> LoadCrew()
         {
-            return null;
+            return Ok(await _service.LoadDataAsync());
         }
     }
 }
